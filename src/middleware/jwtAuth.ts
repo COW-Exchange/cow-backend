@@ -9,7 +9,7 @@ export default (req: Request, res: Response, next: NextFunction) => {
     const verified = jwt.verify(token, "Key");
 
     if (typeof verified === "object" && "id" in verified) {
-      req.user = verified as { id: string };
+      // req.user = verified as { id: string };
       next();
     } else {
       res.status(401).send("Invalid Token Payload");
