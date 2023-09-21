@@ -1,14 +1,3 @@
-// import mongoose, { Document, Schema } from "mongoose";
-
-// interface IExchangeRate extends Document {}
-
-// const ExchangeRateSchema: Schema = new Schema({});
-
-// export default mongoose.model<IExchangeRate>(
-//   "ExchangeRate",
-//   ExchangeRateSchema
-// );
-
 export interface IExchangeRates {
   USD: number;
   JPY: number;
@@ -45,6 +34,6 @@ export interface IExchangeRates {
 }
 
 export interface IExchangeRateResult {
-  date: string;
+  time: string;
   rates: IExchangeRates;
 }
