@@ -8,5 +8,8 @@ router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/profile", jwtAuth, userController.getProfile);
 router.put("/profile", jwtAuth, userController.updateProfile);
+router.post("/request-password-reset", userController.requestPasswordReset);
+router.post("/reset-password", userController.resetPassword);
+
 
 export default router;

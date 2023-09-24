@@ -10,6 +10,8 @@ interface IUser extends Document, IUserMethods {
   password: string;
   favorites: Array<string>;
   recentlyViewed: Array<string>;
+  resetToken?: string;
+  resetTokenExpiration?: Date;
 }
 
 
@@ -30,6 +32,12 @@ const UserSchema: Schema = new Schema({
   recentlyViewed: {
     type: [String],
     default: [],
+  },
+  resetToken: {
+    type: String,
+  },
+  resetTokenExpiration: {
+    type: Date,
   },
 });
 
