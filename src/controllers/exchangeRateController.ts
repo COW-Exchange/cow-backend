@@ -157,7 +157,7 @@ writeFiles();
 const rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [new schedule.Range(1, 5)];
 rule.hour = 17;
-rule.minute = 00;
+rule.minute = 0;
 
 const dailyUpdate = schedule.scheduleJob(rule, function () {
   console.log("db update run");
