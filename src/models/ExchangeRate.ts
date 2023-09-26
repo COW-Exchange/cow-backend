@@ -37,3 +37,5 @@ export interface IExchangeRateResult {
   time: string;
   rates: IExchangeRates;
 }
+
+export type IExchangeRateUpdate = { [key: string]: IExchangeRateResult[] };

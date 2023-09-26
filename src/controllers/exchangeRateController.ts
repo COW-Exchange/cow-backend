@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
-import { IExchangeRateResult } from "../models/ExchangeRate";
+import {
+  IExchangeRateResult,
+  IExchangeRateUpdate,
+} from "../models/ExchangeRate";
 import schedule from "node-schedule";
 const path = require("path");
 const fs = require("fs");
@@ -28,7 +31,7 @@ function assertString(
   }
 }
 
-export function parse(string: string): IExchangeRateResult[] {
+function parse(string: string): IExchangeRateResult[] {
   const data = new XMLParser({
     ignoreAttributes: false,
     isArray: () => true,
@@ -91,7 +94,7 @@ function returnLastDate() {
         flag: "r",
       })
     );
-    lastDate = lastFileContent[lastFileContent.length - 1].date;
+    lastDate = lastFileContent[lastFileContent.length - 1].time;
     return lastDate;
   }
 }
@@ -100,59 +103,65 @@ const msInDay: number = 1000 * 60 * 60 * 24;
 const present_date = new Date();
 let daysBehind: number | null = null;
 let jsLastDate = new Date("1900-01-01" as string);
-if (returnLastDate()) {
-  jsLastDate = new Date(returnLastDate() as string);
-  daysBehind = Math.round(
-    (present_date.getTime() - jsLastDate.getTime()) / msInDay
-  );
-}
+let update: Partial<IExchangeRateUpdate> = {};
 
-if (daysBehind && daysBehind === 1) {
-  console.log(daysBehind, "days behind, running current day method");
-  fetch();
-  console.log("rates update finished");
-} else if (daysBehind && daysBehind < 90) {
-  console.log(daysBehind, "days behind, running 90 day method");
-  fetchHistoric90d().then((result) =>
-    result.reverse().map((dayRate) => {
-      const day = new Date(dayRate.time as string);
-      if (day.getTime() > jsLastDate.getTime()) {
-        fs.appendFileSync(
-          path.join(directoryPath, `${dayRate.time.slice(0, 4)}.json`),
-          JSON.stringify(dayRate)
-        );
-      }
-    })
-  );
-  console.log("rates update finished");
-} else if ((daysBehind && daysBehind >= 90) || daysBehind === null) {
-  console.log(daysBehind, "days behind, running historic method");
-  fetchHistoric().then((result) =>
-    result.reverse().map((dayRate) => {
-      const day = new Date(dayRate.time as string);
-      if (
-        day.getTime() > jsLastDate.getTime() ||
-        jsLastDate.getFullYear === day.getFullYear
-      ) {
-        //here I will need to read the json and append to it then write the file
-        // fs.appendFileSync(
-        //   path.join(directoryPath, `${dayRate.time.slice(0, 4)}.json`),
-        //   JSON.stringify(dayRate)
-        // );
-      } else if (day.getTime() > jsLastDate.getTime()) {
-        //here I'm creating a new file from scratch
-      }
-    })
-  );
+async function getUpdate() {
+  if (returnLastDate()) {
+    jsLastDate = new Date(returnLastDate() as string);
+    daysBehind = Math.floor(
+      (present_date.getTime() - jsLastDate.getTime()) / msInDay
+    );
+  }
+  if (daysBehind && daysBehind === 1) {
+    console.log(daysBehind, "days behind, running current day method");
+    await fetch();
+  } else if (daysBehind && daysBehind < 90) {
+    console.log(daysBehind, "days behind, running 90 day method");
+    await fetchHistoric90d().then((result) =>
+      result.reverse().map((dayRate) => {
+        const day = new Date(dayRate.time as string);
+        if (day.getTime() > jsLastDate.getTime()) {
+          (update[dayRate.time.slice(0, 4)] =
+            update[dayRate.time.slice(0, 4)] || []).push(dayRate);
+        }
+      })
+    );
+    //The || operator in JavaScript does not return a boolean value.
+    //If the left hand side is truthy, it returns the left hand side, otherwise it returns the right hand side.
+    //fun - this way you can create the array and push to it even if it does not exist
+  } else if ((daysBehind && daysBehind >= 90) || daysBehind === null) {
+    console.log(daysBehind, "days behind, running historic method");
+    await fetchHistoric().then((result) =>
+      result.reverse().map((dayRate) => {
+        const day = new Date(dayRate.time as string);
+        if (day.getTime() > jsLastDate.getTime()) {
+          (update[dayRate.time.slice(0, 4)] =
+            update[dayRate.time.slice(0, 4)] || []).push(dayRate);
+        }
+      })
+    );
+  }
 }
+async function writeFiles() {
+  await getUpdate();
+  Object.keys(update).forEach((year) => {
+    if (jsLastDate.getFullYear() <= parseInt(year))
+      fs.writeFileSync(
+        path.join(directoryPath, `${year}.json`),
+        JSON.stringify(update[year])
+      );
+  });
+}
+writeFiles();
 
 const rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [new schedule.Range(1, 5)];
 rule.hour = 17;
-rule.minute = 0;
+rule.minute = 00;
 
 const dailyUpdate = schedule.scheduleJob(rule, function () {
   console.log("db update run");
+  writeFiles();
 });
 export const getIndex = (req: Request, res: Response) => {
   res.send("Currency Exchange API");
