@@ -105,39 +105,47 @@ let daysBehind: number | null = null;
 let jsLastDate = new Date("1900-01-01" as string);
 let update: Partial<IExchangeRateUpdate> = {};
 
+function pushDayRate(dayRate: IExchangeRateResult) {
+  const day = new Date(dayRate.time as string);
+  if (day.getTime() > jsLastDate.getTime()) {
+    (update[dayRate.time.slice(0, 4)] =
+      update[dayRate.time.slice(0, 4)] || []).push(dayRate);
+    //The || operator in JavaScript does not return a boolean value.
+    //If the left hand side is truthy, it returns the left hand side, otherwise it returns the right hand side.
+    //fun - this way you can create the array and push to it even if it does not exist
+  }
+}
+
 async function getUpdate() {
   if (returnLastDate()) {
     jsLastDate = new Date(returnLastDate() as string);
     daysBehind = Math.floor(
       (present_date.getTime() - jsLastDate.getTime()) / msInDay
     );
+    update[returnLastFile()] = JSON.parse(
+      fs.readFileSync(path.join(directoryPath, `${returnLastFile()}.json`), {
+        encoding: "utf8",
+        flag: "r",
+      })
+    );
   }
   if (daysBehind && daysBehind === 1) {
     console.log(daysBehind, "days behind, running current day method");
-    await fetch();
+    await fetch().then((dayRate) => {
+      pushDayRate(dayRate);
+    });
   } else if (daysBehind && daysBehind < 90) {
     console.log(daysBehind, "days behind, running 90 day method");
     await fetchHistoric90d().then((result) =>
       result.reverse().map((dayRate) => {
-        const day = new Date(dayRate.time as string);
-        if (day.getTime() > jsLastDate.getTime()) {
-          (update[dayRate.time.slice(0, 4)] =
-            update[dayRate.time.slice(0, 4)] || []).push(dayRate);
-        }
+        pushDayRate(dayRate);
       })
     );
-    //The || operator in JavaScript does not return a boolean value.
-    //If the left hand side is truthy, it returns the left hand side, otherwise it returns the right hand side.
-    //fun - this way you can create the array and push to it even if it does not exist
   } else if ((daysBehind && daysBehind >= 90) || daysBehind === null) {
     console.log(daysBehind, "days behind, running historic method");
     await fetchHistoric().then((result) =>
       result.reverse().map((dayRate) => {
-        const day = new Date(dayRate.time as string);
-        if (day.getTime() > jsLastDate.getTime()) {
-          (update[dayRate.time.slice(0, 4)] =
-            update[dayRate.time.slice(0, 4)] || []).push(dayRate);
-        }
+        pushDayRate(dayRate);
       })
     );
   }
@@ -163,13 +171,19 @@ const dailyUpdate = schedule.scheduleJob(rule, function () {
   console.log("db update run");
   writeFiles();
 });
+
 export const getIndex = (req: Request, res: Response) => {
   res.send("Currency Exchange API");
 };
 
 export const getRate = (req: Request, res: Response) => {
-  const { fromCurrency, toCurrency, time } = req.params;
-  let rate = {};
+  const { fromCurrency, toCurrency, fromTime, toTime } = req.params;
+  const rate: IExchangeRateResult[] = JSON.parse(
+    fs.readFileSync(path.join(directoryPath, `${returnLastFile()}.json`), {
+      encoding: "utf8",
+      flag: "r",
+    })
+  );
 
   if (rate) {
     res.json({ rate });
