@@ -1,5 +1,3 @@
-# cow-backend trial
-=======
 ## Setting up the database
 
 ### Prerequisites
