@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.JWT_SECRET || "KEY";
 
+
 interface Request extends ExpressRequest {
   user?: {
     id: string;
@@ -24,7 +25,8 @@ export const updateProfile = async (req: Request, res: Response) => {
 
   const userId = req.user.id;
 
-  const { email, password } = req.body;
+  // let updates: any = {};
+  // if (email) updates.email = email;
 
   let updates: any = {};
   if (email) updates.email = email;
@@ -41,5 +43,5 @@ export const updateProfile = async (req: Request, res: Response) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  res.json(user);
+  res.json("user");
 };
