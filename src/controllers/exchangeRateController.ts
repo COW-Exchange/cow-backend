@@ -178,6 +178,8 @@ export const getIndex = (req: Request, res: Response) => {
 
 export const getRate = (req: Request, res: Response) => {
   const { fromCurrency, toCurrency, fromTime, toTime } = req.params;
+  //this is not done
+  const neededFiles = fromCurrency.slice(0, 4);
   const rate: IExchangeRateResult[] = JSON.parse(
     fs.readFileSync(path.join(directoryPath, `${returnLastFile()}.json`), {
       encoding: "utf8",
