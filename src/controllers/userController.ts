@@ -1,11 +1,8 @@
 import { Request as ExpressRequest, Response } from "express";
 import User from "../models/User";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
 
 const SECRET_KEY = process.env.JWT_SECRET || "KEY";
-
 
 interface Request extends ExpressRequest {
   user?: {
@@ -14,15 +11,15 @@ interface Request extends ExpressRequest {
 }
 
 export const register = async (req: Request, res: Response) => {
-  
+  // ...
 };
 
 export const login = async (req: Request, res: Response) => {
-  
+  // ...
 };
 
 export const getProfile = async (req: Request, res: Response) => {
-  
+  // ...
 };
 
 export const updateProfile = async (req: Request, res: Response) => {
@@ -31,7 +28,6 @@ export const updateProfile = async (req: Request, res: Response) => {
   }
 
   const userId = req.user.id;
-
   const { email, password } = req.body;
 
   let updates: any = {};
@@ -60,7 +56,7 @@ export const requestPasswordReset = async (req: Request, res: Response) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  const resetToken = crypto.randomBytes(32).toString("hex");
+  const resetToken = await bcrypt.genSalt(16); 
   user.resetToken = resetToken;
   user.resetTokenExpiration = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes from now
 

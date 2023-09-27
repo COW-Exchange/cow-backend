@@ -2,7 +2,10 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import exchangeRateRoutes from "./routes/exchangeRate";
 import userRoutes from "./routes/userRoutes";
-import jwtAuth from "./middleware/jwtAuth"; 
+import jwtAuth from "./middleware/jwtAuth";
+import dotenv from "dotenv";
+dotenv.config();
+
 
 const app = express();
 
