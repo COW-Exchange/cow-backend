@@ -5,24 +5,17 @@ import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.JWT_SECRET || "KEY";
 
-
 interface Request extends ExpressRequest {
   user?: {
     id: string;
   };
 }
 
-export const register = async (req: Request, res: Response) => {
-  
-};
+export const register = async (req: Request, res: Response) => {};
 
-export const login = async (req: Request, res: Response) => {
-  
-};
+export const login = async (req: Request, res: Response) => {};
 
-export const getProfile = async (req: Request, res: Response) => {
-  
-};
+export const getProfile = async (req: Request, res: Response) => {};
 
 export const updateProfile = async (req: Request, res: Response) => {
   if (!req.user) {
