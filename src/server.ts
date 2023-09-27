@@ -3,22 +3,21 @@ import mongoose from "mongoose";
 import exchangeRateRoutes from "./routes/exchangeRate";
 import userRoutes from "./routes/userRoutes";
 import jwtAuth from "./middleware/jwtAuth";
+import cors from "cors";
 import dotenv from "dotenv";
-dotenv.config();
-
 
 const app = express();
 
-app.use(express.json());
+dotenv.config();
 
+app.use(express.json());
 mongoose
-  .connect("mongodb://localhost:27017")
+  .connect(process.env.MONGODB_URI as string)
   .then(() => console.log("MongoDB connected"))
   .catch((err: any) => console.log(err.message));
 
-
+app.use(cors());
 app.use(jwtAuth);
-
 
 app.use("/exchange-rate", exchangeRateRoutes);
 app.use("/users", userRoutes);
