@@ -1,14 +1,13 @@
-import { Request, Response } from "express";
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
+import schedule from "node-schedule";
+import path from "path";
+import fs from "fs";
+
 import {
   IExchangeRateResult,
   IExchangeRateUpdate,
 } from "../models/ExchangeRate";
-import schedule from "node-schedule";
-const path = require("path");
-const fs = require("fs");
-const directoryPath = path.join(__dirname, "/../rates");
 
 const dailyUrl = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
 const ninetyUrl =
@@ -16,7 +15,8 @@ const ninetyUrl =
 const historicUrl =
   "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml";
 
-//Functions from ecb-euro-exchange-rates
+const directoryPath = path.join(__dirname, "/../rates");
+
 async function get(url: string): Promise<string> {
   const result = await axios.get<string>(url);
   return result.data;
@@ -78,13 +78,14 @@ async function fetchHistoric90d(): Promise<IExchangeRateResult[]> {
 async function fetchHistoric(): Promise<IExchangeRateResult[]> {
   return parse(await get(historicUrl));
 }
-//My file functions
-function returnLastFile() {
+
+function returnLastFile(): any {
   let files = fs.readdirSync(directoryPath);
   if (files.length > 0) {
     return files[files.length - 1].replace(".json", "");
   }
 }
+
 function returnLastDate() {
   let lastDate: string | null = null;
   if (returnLastFile()) {
@@ -172,24 +173,4 @@ const dailyUpdate = schedule.scheduleJob(rule, function () {
   writeFiles();
 });
 
-export const getIndex = (req: Request, res: Response) => {
-  res.send("Currency Exchange API");
-};
-
-export const getRate = (req: Request, res: Response) => {
-  const { fromCurrency, toCurrency, fromTime, toTime } = req.params;
-  //this is not done
-  const neededFiles = fromCurrency.slice(0, 4);
-  const rate: IExchangeRateResult[] = JSON.parse(
-    fs.readFileSync(path.join(directoryPath, `${returnLastFile()}.json`), {
-      encoding: "utf8",
-      flag: "r",
-    })
-  );
-
-  if (rate) {
-    res.json({ rate });
-  } else {
-    res.status(404).json({ message: "invalid currency or timeframe" });
-  }
-};
+export default { returnLastFile, directoryPath };

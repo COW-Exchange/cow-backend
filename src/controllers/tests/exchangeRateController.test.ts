@@ -1,4 +1,4 @@
-import { getIndex, getRate } from "../exchangeRateController";
+import { getIndex, getRate } from "../exchangeRate";
 import { Request, Response } from "express";
 
 describe("exchangeRateController", () => {
@@ -13,5 +13,4 @@ describe("exchangeRateController", () => {
       expect(mockResponse.send).toHaveBeenCalledWith("Currency Exchange API");
     });
   });
-
 });
