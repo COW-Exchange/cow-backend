@@ -3,7 +3,7 @@ import cors from "cors";
 
 import apiErrorHandler from "./middleware/apiErrorHandler";
 import exchangeRateRoutes from "./routes/exchangeRate";
-import userRoutes from "./routes/userRoutes";
+import userRoutes from "./routes/user";
 
 const app = express();
 
