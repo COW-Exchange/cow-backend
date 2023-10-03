@@ -39,3 +39,5 @@ export interface IExchangeRateResult {
 }
 
 export type IExchangeRateUpdate = { [key: string]: IExchangeRateResult[] };
+
+export type IExchangeRateResponse = { date: string; rate: number }[];

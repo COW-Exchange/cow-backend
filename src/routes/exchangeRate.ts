@@ -5,6 +5,9 @@ const router = Router();
 
 router.get("/", exchangeRateController.getIndex);
 
-router.get("/:fromCurrency/:toCurrency/:time", exchangeRateController.getRate);
+router.get(
+  "/:fromCurrency/:toCurrency/:fromTime/:toTime",
+  exchangeRateController.getRate
+);
 
 export default router;

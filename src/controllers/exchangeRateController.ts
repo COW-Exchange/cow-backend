@@ -4,6 +4,7 @@ import { XMLParser } from "fast-xml-parser";
 import {
   IExchangeRateResult,
   IExchangeRateUpdate,
+  IExchangeRateResponse,
 } from "../models/ExchangeRate";
 import schedule from "node-schedule";
 const path = require("path");
@@ -177,18 +178,56 @@ export const getIndex = (req: Request, res: Response) => {
 };
 
 export const getRate = (req: Request, res: Response) => {
-  const { fromCurrency, toCurrency, fromTime, toTime } = req.params;
-  //this is not done
-  const neededFiles = fromCurrency.slice(0, 4);
-  const rate: IExchangeRateResult[] = JSON.parse(
-    fs.readFileSync(path.join(directoryPath, `${returnLastFile()}.json`), {
-      encoding: "utf8",
-      flag: "r",
-    })
-  );
+  let { fromCurrency, toCurrency, fromTime, toTime } = req.params;
+  const neededFiles = [fromTime.slice(0, 4)];
+  while (neededFiles[neededFiles.length - 1] !== toTime.slice(0, 4)) {
+    neededFiles.push(
+      (parseInt(neededFiles[neededFiles.length - 1]) + 1).toString()
+    );
+  }
+  let rates: IExchangeRateResponse = [];
 
-  if (rate) {
-    res.json({ rate });
+  neededFiles.map((fileName) => {
+    fs.readFile(
+      `${fileName}.json`,
+      (err: any, res: Promise<IExchangeRateResult[]>) => {
+        res.then((result) =>
+          result.map((dayRate) => {
+            const day = new Date(dayRate.time as string);
+            let fromDate = new Date(fromTime);
+            let toDate = new Date(toTime);
+            if (
+              day.getTime() >= fromDate.getTime() &&
+              day.getTime() <= toDate.getTime()
+            ) {
+              let rate = 0;
+              if (fromCurrency === "EUR") {
+                rate =
+                  dayRate.rates[toCurrency as keyof typeof dayRate.rates] / 1;
+              } else if (toCurrency === "EUR") {
+                rate =
+                  1 / dayRate.rates[fromCurrency as keyof typeof dayRate.rates];
+              } else {
+                rate =
+                  dayRate.rates[toCurrency as keyof typeof dayRate.rates] /
+                  dayRate.rates[fromCurrency as keyof typeof dayRate.rates];
+              }
+              rates.push({
+                date: dayRate.time,
+                rate: rate,
+              });
+            }
+          })
+        );
+        if (err instanceof Error) {
+          console.log(err);
+        }
+      }
+    );
+  });
+
+  if (rates) {
+    res.status(200).json({ rates: rates });
   } else {
     res.status(404).json({ message: "invalid currency or timeframe" });
   }
