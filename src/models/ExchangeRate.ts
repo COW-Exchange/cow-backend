@@ -1,32 +1,41 @@
-import mongoose, { Document, Schema } from "mongoose";
-
-interface IExchangeRate extends Document {
-  fromCurrency: string;
-  toCurrency: string;
-  rate: number;
-  date?: Date;
+export interface IExchangeRates {
+  USD: number;
+  JPY: number;
+  BGN: number;
+  CZK: number;
+  DKK: number;
+  GBP: number;
+  HUF: number;
+  PLN: number;
+  RON: number;
+  SEK: number;
+  CHF: number;
+  ISK: number;
+  NOK: number;
+  HRK: number;
+  RUB: number;
+  TRY: number;
+  AUD: number;
+  BRL: number;
+  CAD: number;
+  CNY: number;
+  HKD: number;
+  IDR: number;
+  ILS: number;
+  INR: number;
+  KRW: number;
+  MXN: number;
+  MYR: number;
+  NZD: number;
+  PHP: number;
+  SGD: number;
+  THB: number;
+  ZAR: number;
 }
 
-const ExchangeRateSchema: Schema = new Schema({
-  fromCurrency: {
-    type: String,
-    required: true,
-  },
-  toCurrency: {
-    type: String,
-    required: true,
-  },
-  rate: {
-    type: Number,
-    required: true,
-  },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-});
+export interface IExchangeRateResult {
+  time: string;
+  rates: IExchangeRates;
+}
 
-export default mongoose.model<IExchangeRate>(
-  "ExchangeRate",
-  ExchangeRateSchema
-);
+export type IExchangeRateUpdate = { [key: string]: IExchangeRateResult[] };

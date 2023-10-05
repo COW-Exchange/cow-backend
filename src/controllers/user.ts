@@ -16,17 +16,11 @@ interface Request extends ExpressRequest {
   };
 }
 
-export const register = async (req: Request, res: Response) => {
-  // ...
-};
+export const register = async (req: Request, res: Response) => {};
 
-export const login = async (req: Request, res: Response) => {
-  // ...
-};
+export const login = async (req: Request, res: Response) => {};
 
-export const getProfile = async (req: Request, res: Response) => {
-  // ...
-};
+export const getProfile = async (req: Request, res: Response) => {};
 
 export const updateProfile = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -51,7 +45,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  res.json(user);
+  res.json("user");
 };
 
 export const requestPasswordReset = async (req: Request, res: Response) => {
