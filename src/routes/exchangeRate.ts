@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as exchangeRateController from "../controllers/exchangeRateController";
+import jwtAuth from "../middleware/jwtAuth";
 
 const router = Router();
 

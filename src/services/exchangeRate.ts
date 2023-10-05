@@ -1,15 +1,13 @@
-import { Request, Response } from "express";
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
+import schedule from "node-schedule";
+import path from "path";
+import fs from "fs";
+
 import {
   IExchangeRateResult,
   IExchangeRateUpdate,
-  IExchangeRateResponse,
 } from "../models/ExchangeRate";
-import schedule from "node-schedule";
-const path = require("path");
-const fs = require("fs");
-const directoryPath = path.join(__dirname, "/../rates");
 
 const dailyUrl = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
 const ninetyUrl =
@@ -17,7 +15,8 @@ const ninetyUrl =
 const historicUrl =
   "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml";
 
-//Functions from ecb-euro-exchange-rates
+const directoryPath = path.join(__dirname, "/../rates");
+
 async function get(url: string): Promise<string> {
   const result = await axios.get<string>(url);
   return result.data;
@@ -79,13 +78,14 @@ async function fetchHistoric90d(): Promise<IExchangeRateResult[]> {
 async function fetchHistoric(): Promise<IExchangeRateResult[]> {
   return parse(await get(historicUrl));
 }
-//My file functions
-function returnLastFile() {
+
+function returnLastFile(): any {
   let files = fs.readdirSync(directoryPath);
   if (files.length > 0) {
     return files[files.length - 1].replace(".json", "");
   }
 }
+
 function returnLastDate() {
   let lastDate: string | null = null;
   if (returnLastFile()) {
@@ -173,62 +173,4 @@ const dailyUpdate = schedule.scheduleJob(rule, function () {
   writeFiles();
 });
 
-export const getIndex = (req: Request, res: Response) => {
-  res.send("Currency Exchange API");
-};
-
-export const getRate = (req: Request, res: Response) => {
-  let { fromCurrency, toCurrency, fromTime, toTime } = req.params;
-  const neededFiles = [fromTime.slice(0, 4)];
-  while (neededFiles[neededFiles.length - 1] !== toTime.slice(0, 4)) {
-    neededFiles.push(
-      (parseInt(neededFiles[neededFiles.length - 1]) + 1).toString()
-    );
-  }
-  let rates: IExchangeRateResponse = [];
-
-  neededFiles.map((fileName) => {
-    fs.readFile(
-      `${fileName}.json`,
-      (err: any, res: Promise<IExchangeRateResult[]>) => {
-        res.then((result) =>
-          result.map((dayRate) => {
-            const day = new Date(dayRate.time as string);
-            let fromDate = new Date(fromTime);
-            let toDate = new Date(toTime);
-            if (
-              day.getTime() >= fromDate.getTime() &&
-              day.getTime() <= toDate.getTime()
-            ) {
-              let rate = 0;
-              if (fromCurrency === "EUR") {
-                rate =
-                  dayRate.rates[toCurrency as keyof typeof dayRate.rates] / 1;
-              } else if (toCurrency === "EUR") {
-                rate =
-                  1 / dayRate.rates[fromCurrency as keyof typeof dayRate.rates];
-              } else {
-                rate =
-                  dayRate.rates[toCurrency as keyof typeof dayRate.rates] /
-                  dayRate.rates[fromCurrency as keyof typeof dayRate.rates];
-              }
-              rates.push({
-                date: dayRate.time,
-                rate: rate,
-              });
-            }
-          })
-        );
-        if (err instanceof Error) {
-          console.log(err);
-        }
-      }
-    );
-  });
-
-  if (rates) {
-    res.status(200).json({ rates: rates });
-  } else {
-    res.status(404).json({ message: "invalid currency or timeframe" });
-  }
-};
+export default { returnLastFile, directoryPath };
