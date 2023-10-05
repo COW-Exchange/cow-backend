@@ -6,7 +6,6 @@ import jwtAuth from "./middleware/jwtAuth";
 import dotenv from "dotenv";
 dotenv.config();
 
-
 const app = express();
 
 app.use(express.json());
@@ -16,12 +15,13 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err: any) => console.log(err.message));
 
+  app.get("/", (req, res) => {
+    res.send("Welcome to Cow Exchange");
+  });
 
-app.use(jwtAuth);
 
-
+app.use("/users", jwtAuth, userRoutes);
 app.use("/exchange-rate", exchangeRateRoutes);
-app.use("/users", userRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {
