@@ -7,15 +7,17 @@ interface Request extends ExpressRequest {
   };
 }
 
+const SECRET_KEY = process.env.JWT_SECRET || "KEY";
+
 export default (req: Request, res: Response, next: NextFunction) => {
   const token = req.header("auth-token");
   if (!token) return res.status(401).send("Access Denied");
 
   try {
-    const verified = jwt.verify(token, "Key");
+    const verified = jwt.verify(token, SECRET_KEY) as { id: string };
 
-    if (typeof verified === "object" && "id" in verified) {
-      // req.user = verified as { id: string };
+    if (verified.id) {
+      req.user = verified;
       next();
     } else {
       res.status(401).send("Invalid Token Payload");
