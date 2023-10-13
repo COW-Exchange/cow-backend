@@ -1,13 +1,17 @@
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+dotenv.config();
 
+import mongoose from "mongoose";
+import chatGptRoutes from "./routes/chatGptRoutes";
 import app from "./app";
 
-dotenv.config();
+console.log("API Key:", process.env.OPENAI_API_KEY);
 
 const port = 5000;
 
-mongoose
+app.use("/chatgpt", chatGptRoutes);
+
+/*mongoose
   .connect(process.env.MONGODB_URI as string)
   .then(() => {
     app.listen(port, () => {
@@ -20,3 +24,7 @@ mongoose
     );
     process.exit(1);
   });
+  */
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
+});
