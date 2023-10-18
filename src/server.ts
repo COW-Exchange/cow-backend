@@ -2,12 +2,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import mongoose from "mongoose";
-import chatGptRoutes from "./routes/chatGptRoutes";
 import app from "./app";
 
 const port = 5000;
-
-app.use("/chatgpt", chatGptRoutes);
 
 mongoose
   .connect(process.env.MONGODB_URI as string)
