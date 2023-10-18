@@ -4,6 +4,7 @@ import cors from "cors";
 import apiErrorHandler from "./middleware/apiErrorHandler";
 import exchangeRateRoutes from "./routes/exchangeRate";
 import userRoutes from "./routes/user";
+import chatGptRoutes from "./routes/chatGptRoutes";
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.use(cors());
 
 app.use("/exchange-rate", exchangeRateRoutes);
 app.use("/users", userRoutes);
+app.use("/chatgpt", chatGptRoutes);
 
 app.use(apiErrorHandler);
 

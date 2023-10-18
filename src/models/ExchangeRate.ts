@@ -1,4 +1,6 @@
-export interface IExchangeRates {
+import mongoose, { Document } from "mongoose";
+
+export type IExchangeRates = {
   USD: number;
   JPY: number;
   BGN: number;
@@ -31,12 +33,12 @@ export interface IExchangeRates {
   SGD: number;
   THB: number;
   ZAR: number;
-}
+};
 
-export interface IExchangeRateResult {
+export type IExchangeRateResult = {
   time: string;
   rates: IExchangeRates;
-}
+};
 
 export type IExchangeRateUpdate = { [key: string]: IExchangeRateResult[] };
 
