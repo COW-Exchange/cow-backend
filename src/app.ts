@@ -8,13 +8,12 @@ import chatGptRoutes from "./routes/chatGptRoutes";
 
 const app = express();
 
-app.use("/chatgpt", chatGptRoutes);
-
 app.use(express.json());
 app.use(cors());
 
 app.use("/exchange-rate", exchangeRateRoutes);
 app.use("/users", userRoutes);
+app.use("/chatgpt", chatGptRoutes);
 
 app.use(apiErrorHandler);
 
