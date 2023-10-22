@@ -4,14 +4,16 @@ dotenv.config();
 import mongoose from "mongoose";
 import chatGptRoutes from "./routes/chatGptRoutes";
 import app from "./app";
+import currencyRatesRoutes from "./routes/currencyRatesRoutes";
 
 console.log("API Key:", process.env.OPENAI_API_KEY);
 
 const port = 5000;
 
 app.use("/chatgpt", chatGptRoutes);
+app.use("/api", currencyRatesRoutes);
 
-/*mongoose
+mongoose
   .connect(process.env.MONGODB_URI as string)
   .then(() => {
     app.listen(port, () => {
@@ -24,7 +26,6 @@ app.use("/chatgpt", chatGptRoutes);
     );
     process.exit(1);
   });
-  */
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
