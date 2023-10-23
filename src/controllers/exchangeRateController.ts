@@ -10,12 +10,17 @@ import {
 const directoryPath = path.join(__dirname, "/../rates");
 
 async function readRates(
-  neededFiles: string[],
   fromCurrency: string,
   toCurrency: string,
   fromTime: string,
   toTime: string
 ): Promise<IExchangeRateResponse> {
+  const neededFiles = [fromTime.slice(0, 4)];
+  while (neededFiles[neededFiles.length - 1] !== toTime.slice(0, 4)) {
+    neededFiles.push(
+      (parseInt(neededFiles[neededFiles.length - 1]) + 1).toString()
+    );
+  }
   let rates: IExchangeRateResponse = [];
   const fromDate = new Date(fromTime);
   const toDate = new Date(toTime);
@@ -55,19 +60,8 @@ export const getIndex = (req: Request, res: Response) => {
 
 export const getRate = async (req: Request, res: Response) => {
   let { fromCurrency, toCurrency, fromTime, toTime } = req.params;
-  const neededFiles = [fromTime.slice(0, 4)];
-  while (neededFiles[neededFiles.length - 1] !== toTime.slice(0, 4)) {
-    neededFiles.push(
-      (parseInt(neededFiles[neededFiles.length - 1]) + 1).toString()
-    );
-  }
-  const rates = await readRates(
-    neededFiles,
-    fromCurrency,
-    toCurrency,
-    fromTime,
-    toTime
-  );
+
+  const rates = await readRates(fromCurrency, toCurrency, fromTime, toTime);
   if (rates) {
     res.status(200).json({ rates: rates });
   } else {

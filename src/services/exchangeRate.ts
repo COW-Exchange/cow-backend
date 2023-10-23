@@ -161,6 +161,7 @@ async function writeFiles() {
       );
   });
 }
+
 writeFiles();
 
 const rule = new schedule.RecurrenceRule();
@@ -173,4 +174,4 @@ const dailyUpdate = schedule.scheduleJob(rule, function () {
   writeFiles();
 });
 
-export default { returnLastFile, directoryPath };
+export default { returnLastFile, writeFiles, directoryPath };
