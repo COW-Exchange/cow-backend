@@ -55,7 +55,7 @@ response shape:
 Functions from ecb-euro-exchange
 
 - get<br />
-  Fetches and resolves the promise using axios
+  Fetches and resolves the promise using axios.
 - assertString<br />
   Checks if the resolved data is in fact a string. Not sure why would this be needed.
 - parse<br />

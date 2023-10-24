@@ -1,6 +1,5 @@
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
-import schedule from "node-schedule";
 import path from "path";
 import fs from "fs";
 
@@ -151,7 +150,7 @@ async function getUpdate() {
     );
   }
 }
-async function writeFiles() {
+export async function writeFiles() {
   await getUpdate();
   Object.keys(update).forEach((year) => {
     if (jsLastDate.getFullYear() <= parseInt(year))
@@ -161,17 +160,3 @@ async function writeFiles() {
       );
   });
 }
-
-writeFiles();
-
-const rule = new schedule.RecurrenceRule();
-rule.dayOfWeek = [new schedule.Range(1, 5)];
-rule.hour = 17;
-rule.minute = 0;
-
-const dailyUpdate = schedule.scheduleJob(rule, function () {
-  console.log("db update run");
-  writeFiles();
-});
-
-export default { returnLastFile, writeFiles, directoryPath };
