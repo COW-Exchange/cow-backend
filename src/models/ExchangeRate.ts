@@ -1,6 +1,6 @@
 import mongoose, { Document } from "mongoose";
 
-export type IExchangeRates = {
+export type ExchangeRates = {
   USD: number;
   JPY: number;
   BGN: number;
@@ -35,11 +35,66 @@ export type IExchangeRates = {
   ZAR: number;
 };
 
-export type IExchangeRateResult = {
-  time: string;
-  rates: IExchangeRates;
+export type ExchangeRateDaily = {
+  date: Date;
+  rates: ExchangeRates;
 };
 
-export type IExchangeRateUpdate = { [key: string]: IExchangeRateResult[] };
+export type ExchangeRateUpdate = { [key: string]: ExchangeRateDaily[] };
 
-export type IExchangeRateResponse = { date: string; rate: number }[];
+export type ExchangeRateDocument = Document & {
+  date: Date;
+  rates: ExchangeRates;
+};
+
+export type ExchangeRateResponse = { date: Date; rate: number }[];
+
+export const ExchangeRateSchema = new mongoose.Schema({
+  date: {
+    type: Date,
+    required: true,
+    unique: true,
+  },
+  rates: {
+    type: {
+      USD: Number,
+      JPY: Number,
+      BGN: Number,
+      CZK: Number,
+      DKK: Number,
+      GBP: Number,
+      HUF: Number,
+      PLN: Number,
+      RON: Number,
+      SEK: Number,
+      CHF: Number,
+      ISK: Number,
+      NOK: Number,
+      HRK: Number,
+      RUB: Number,
+      TRY: Number,
+      AUD: Number,
+      BRL: Number,
+      CAD: Number,
+      CNY: Number,
+      HKD: Number,
+      IDR: Number,
+      ILS: Number,
+      INR: Number,
+      KRW: Number,
+      MXN: Number,
+      MYR: Number,
+      NZD: Number,
+      PHP: Number,
+      SGD: Number,
+      THB: Number,
+      ZAR: Number,
+    },
+    required: true,
+  },
+});
+
+export default mongoose.model<ExchangeRateDocument>(
+  "Exchangerate",
+  ExchangeRateSchema
+);

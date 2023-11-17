@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import * as exchangeRateController from "../controllers/exchangeRateController";
+import * as exchangeRateController from "../controllers/exchangeRate";
 
 const router = Router();
 
