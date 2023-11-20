@@ -25,30 +25,30 @@ async function readRates(
   const fromDate = new Date(fromTime);
   const toDate = new Date(toTime);
   neededYears.map((year) => {
-    JSON.parse(
-      fs.readFileSync(path.join(directoryPath, `${year}.json`), "utf8")
-    ).map((dayRate: ExchangeRateDaily) => {
-      const day = dayRate.date;
-      if (
-        day.getTime() >= fromDate.getTime() &&
-        day.getTime() <= toDate.getTime()
-      ) {
-        let rate = 0;
-        if (fromCurrency === "EUR") {
-          rate = dayRate.rates[toCurrency as keyof typeof dayRate.rates] / 1;
-        } else if (toCurrency === "EUR") {
-          rate = 1 / dayRate.rates[fromCurrency as keyof typeof dayRate.rates];
-        } else {
-          rate =
-            dayRate.rates[toCurrency as keyof typeof dayRate.rates] /
-            dayRate.rates[fromCurrency as keyof typeof dayRate.rates];
-        }
-        rates.push({
-          date: day,
-          rate: rate,
-        });
-      }
-    });
+    // JSON.parse(
+    //   fs.readFileSync(path.join(directoryPath, `${year}.json`), "utf8")
+    // ).map((dayRate: ExchangeRateDaily) => {
+    //   const day = dayRate.date;
+    //   if (
+    //     day.getTime() >= fromDate.getTime() &&
+    //     day.getTime() <= toDate.getTime()
+    //   ) {
+    //     let rate = 0;
+    //     if (fromCurrency === "EUR") {
+    //       rate = dayRate.rates[toCurrency as keyof typeof dayRate.rates] / 1;
+    //     } else if (toCurrency === "EUR") {
+    //       rate = 1 / dayRate.rates[fromCurrency as keyof typeof dayRate.rates];
+    //     } else {
+    //       rate =
+    //         dayRate.rates[toCurrency as keyof typeof dayRate.rates] /
+    //         dayRate.rates[fromCurrency as keyof typeof dayRate.rates];
+    //     }
+    //     rates.push({
+    //       date: day,
+    //       rate: rate,
+    //     });
+    //   }
+    // });
   });
   return rates;
 }

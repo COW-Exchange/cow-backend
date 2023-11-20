@@ -40,10 +40,9 @@ function parse(string: string): ExchangeRateDaily[] {
   }
 
   for (const current of entries) {
-    const dateString: string = current?.["@_date"]?.[0];
-    assertString(dateString, "dateString");
-    const date: Date = new Date(dateString);
-    const rates: ExchangeRates = {
+    const date = current?.["@_date"]?.[0];
+    assertString(date, "date");
+    let rates: ExchangeRates = {
       USD: 0,
       JPY: 0,
       BGN: 0,
@@ -86,7 +85,7 @@ function parse(string: string): ExchangeRateDaily[] {
       rates[currency as keyof ExchangeRates] = rate;
     }
 
-    result.push({ date, rates });
+    result.push({ date: new Date(date), rates: rates });
   }
 
   return result;
