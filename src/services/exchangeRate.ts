@@ -40,7 +40,7 @@ function parse(string: string): ExchangeRateDaily[] {
   }
 
   for (const current of entries) {
-    const date = current?.["@_date"]?.[0];
+    const date = current?.["@_time"]?.[0];
     assertString(date, "date");
     let rates: ExchangeRates = {
       USD: 0,
@@ -78,7 +78,7 @@ function parse(string: string): ExchangeRateDaily[] {
     };
     for (const item of current["Cube"]) {
       const currency = item["@_currency"]?.[0];
-      assertString(currency, "curency");
+      assertString(currency, "currency");
       const rateString = item["@_rate"]?.[0];
       assertString(rateString, "rate");
       const rate = parseFloat(rateString);
