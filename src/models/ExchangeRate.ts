@@ -40,14 +40,9 @@ export type ExchangeRateDaily = {
   rates: ExchangeRates;
 };
 
-export type ExchangeRateUpdate = { [key: string]: ExchangeRateDaily[] };
+export type ExchangeRateDocument = Document & ExchangeRateDaily;
 
-export type ExchangeRateDocument = Document & {
-  date: Date;
-  rates: ExchangeRates;
-};
-
-export type ExchangeRateResponse = { date: Date; rate: number }[];
+export type ExchangeRateResponse = ExchangeRateDocument[];
 
 export const ExchangeRateSchema = new mongoose.Schema({
   date: {

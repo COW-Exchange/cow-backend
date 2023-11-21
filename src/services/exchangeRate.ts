@@ -1,9 +1,11 @@
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
+import { NotFoundError } from "./../helpers/apiError";
 
 import ExchangeRate, {
   ExchangeRateDocument,
   ExchangeRates,
+  ExchangeRateResponse,
 } from "../models/ExchangeRate";
 
 import { ExchangeRateDaily } from "../models/ExchangeRate";
@@ -146,7 +148,12 @@ export async function getUpdate() {
 export const addRate = async (
   rate: ExchangeRateDocument
 ): Promise<ExchangeRateDocument> => {
-  return await rate.save();
+  const exists = await ExchangeRate.findOne({ date: rate.date });
+  if (exists === null) {
+    return await rate.save();
+  } else {
+    return exists;
+  }
 };
 
 export const getLastDate = async (): Promise<Date> => {
@@ -154,12 +161,27 @@ export const getLastDate = async (): Promise<Date> => {
 
   try {
     const lastRate = await ExchangeRate.find().sort({ date: -1 }).limit(1);
-    if ("date" in lastRate) {
-      if (lastRate.date instanceof Date) {
-        date = lastRate.date;
+    if ("date" in lastRate[0]) {
+      if (lastRate[0].date instanceof Date) {
+        date = lastRate[0].date;
       }
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 
   return date;
 };
+
+export async function getAllRatesInInterval(
+  fromTime: string,
+  toTime: string
+): Promise<ExchangeRateResponse> {
+  const allRates = await ExchangeRate.find({
+    date: { $gte: fromTime, $lt: toTime },
+  });
+  if (!allRates) {
+    throw new NotFoundError(`no rates in interval`);
+  }
+  return allRates;
+}
