@@ -1,21 +1,20 @@
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
-import schedule from "node-schedule";
-import path from "path";
-import fs from "fs";
+import { NotFoundError } from "./../helpers/apiError";
 
-import {
-  IExchangeRateResult,
-  IExchangeRateUpdate,
+import ExchangeRate, {
+  ExchangeRateDocument,
+  ExchangeRates,
+  ExchangeRateResponse,
 } from "../models/ExchangeRate";
+
+import { ExchangeRateDaily } from "../models/ExchangeRate";
 
 const dailyUrl = "http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml";
 const ninetyUrl =
   "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml";
 const historicUrl =
   "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml";
-
-const directoryPath = path.join(__dirname, "/../rates");
 
 async function get(url: string): Promise<string> {
   const result = await axios.get<string>(url);
@@ -31,36 +30,69 @@ function assertString(
   }
 }
 
-function parse(string: string): IExchangeRateResult[] {
+function parse(string: string): ExchangeRateDaily[] {
   const data = new XMLParser({
     ignoreAttributes: false,
     isArray: () => true,
   }).parse(string);
-  const result: IExchangeRateResult[] = [];
+  const result: ExchangeRateDaily[] = [];
   const entries = data["gesmes:Envelope"][0]["Cube"][0]["Cube"];
   if (typeof entries !== "object") {
     throw new Error("Result data does not have the expected structure");
   }
 
   for (const current of entries) {
-    const time: string = current?.["@_time"]?.[0];
-    assertString(time, "time");
-    const rates = {} as any;
+    const date = current?.["@_time"]?.[0];
+    assertString(date, "date");
+    let rates: ExchangeRates = {
+      USD: 0,
+      JPY: 0,
+      BGN: 0,
+      CZK: 0,
+      DKK: 0,
+      GBP: 0,
+      HUF: 0,
+      PLN: 0,
+      RON: 0,
+      SEK: 0,
+      CHF: 0,
+      ISK: 0,
+      NOK: 0,
+      HRK: 0,
+      RUB: 0,
+      TRY: 0,
+      AUD: 0,
+      BRL: 0,
+      CAD: 0,
+      CNY: 0,
+      HKD: 0,
+      IDR: 0,
+      ILS: 0,
+      INR: 0,
+      KRW: 0,
+      MXN: 0,
+      MYR: 0,
+      NZD: 0,
+      PHP: 0,
+      SGD: 0,
+      THB: 0,
+      ZAR: 0,
+    };
     for (const item of current["Cube"]) {
       const currency = item["@_currency"]?.[0];
-      assertString(currency, "curency");
+      assertString(currency, "currency");
       const rateString = item["@_rate"]?.[0];
       assertString(rateString, "rate");
       const rate = parseFloat(rateString);
-      rates[currency] = rate;
+      rates[currency as keyof ExchangeRates] = rate;
     }
 
-    result.push({ time, rates });
+    result.push({ date: new Date(date), rates: rates });
   }
 
   return result;
 }
-async function fetch(): Promise<IExchangeRateResult> {
+async function fetch(): Promise<ExchangeRateDaily> {
   const result = await get(dailyUrl);
   const rates = parse(result);
   if (rates.length !== 1) {
@@ -71,106 +103,85 @@ async function fetch(): Promise<IExchangeRateResult> {
   return rates[0];
 }
 
-async function fetchHistoric90d(): Promise<IExchangeRateResult[]> {
+async function fetchHistoric90d(): Promise<ExchangeRateDaily[]> {
   return parse(await get(ninetyUrl));
 }
 
-async function fetchHistoric(): Promise<IExchangeRateResult[]> {
+async function fetchHistoric(): Promise<ExchangeRateDaily[]> {
   return parse(await get(historicUrl));
-}
-
-function returnLastFile(): any {
-  let files = fs.readdirSync(directoryPath);
-  if (files.length > 0) {
-    return files[files.length - 1].replace(".json", "");
-  }
-}
-
-function returnLastDate() {
-  let lastDate: string | null = null;
-  if (returnLastFile()) {
-    const lastFileContent = JSON.parse(
-      fs.readFileSync(path.join(directoryPath, `${returnLastFile()}.json`), {
-        encoding: "utf8",
-        flag: "r",
-      })
-    );
-    lastDate = lastFileContent[lastFileContent.length - 1].time;
-    return lastDate;
-  }
 }
 
 const msInDay: number = 1000 * 60 * 60 * 24;
 const present_date = new Date();
 let daysBehind: number | null = null;
-let jsLastDate = new Date("1900-01-01" as string);
-let update: Partial<IExchangeRateUpdate> = {};
 
-function pushDayRate(dayRate: IExchangeRateResult) {
-  const day = new Date(dayRate.time as string);
-  if (day.getTime() > jsLastDate.getTime()) {
-    (update[dayRate.time.slice(0, 4)] =
-      update[dayRate.time.slice(0, 4)] || []).push(dayRate);
-    //The || operator in JavaScript does not return a boolean value.
-    //If the left hand side is truthy, it returns the left hand side, otherwise it returns the right hand side.
-    //fun - this way you can create the array and push to it even if it does not exist
-  }
-}
+export async function getUpdate() {
+  await getLastDate().then(
+    (date) =>
+      (daysBehind = Math.floor(
+        (present_date.getTime() - date.getTime()) / msInDay
+      ))
+  );
 
-async function getUpdate() {
-  if (returnLastDate()) {
-    jsLastDate = new Date(returnLastDate() as string);
-    daysBehind = Math.floor(
-      (present_date.getTime() - jsLastDate.getTime()) / msInDay
-    );
-    update[returnLastFile()] = JSON.parse(
-      fs.readFileSync(path.join(directoryPath, `${returnLastFile()}.json`), {
-        encoding: "utf8",
-        flag: "r",
-      })
-    );
-  }
   if (daysBehind && daysBehind === 1) {
     console.log(daysBehind, "days behind, running current day method");
     await fetch().then((dayRate) => {
-      pushDayRate(dayRate);
+      addRate(new ExchangeRate(dayRate));
     });
   } else if (daysBehind && daysBehind < 90) {
     console.log(daysBehind, "days behind, running 90 day method");
     await fetchHistoric90d().then((result) =>
       result.reverse().map((dayRate) => {
-        pushDayRate(dayRate);
+        addRate(new ExchangeRate(dayRate));
       })
     );
   } else if ((daysBehind && daysBehind >= 90) || daysBehind === null) {
     console.log(daysBehind, "days behind, running historic method");
     await fetchHistoric().then((result) =>
       result.reverse().map((dayRate) => {
-        pushDayRate(dayRate);
+        addRate(new ExchangeRate(dayRate));
       })
     );
   }
 }
-async function writeFiles() {
-  await getUpdate();
-  Object.keys(update).forEach((year) => {
-    if (jsLastDate.getFullYear() <= parseInt(year))
-      fs.writeFileSync(
-        path.join(directoryPath, `${year}.json`),
-        JSON.stringify(update[year])
-      );
+
+export const addRate = async (
+  rate: ExchangeRateDocument
+): Promise<ExchangeRateDocument> => {
+  const exists = await ExchangeRate.findOne({ date: rate.date });
+  if (exists === null) {
+    return await rate.save();
+  } else {
+    return exists;
+  }
+};
+
+export const getLastDate = async (): Promise<Date> => {
+  let date: Date = new Date("1900-01-01");
+
+  try {
+    const lastRate = await ExchangeRate.find().sort({ date: -1 }).limit(1);
+    if ("date" in lastRate[0]) {
+      if (lastRate[0].date instanceof Date) {
+        date = lastRate[0].date;
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+  return date;
+};
+
+export async function getAllRatesInInterval(
+  fromTime: string,
+  toTime: string
+): Promise<ExchangeRateResponse> {
+  const allRates = await ExchangeRate.find({
+    date: { $gte: fromTime, $lt: toTime },
   });
+  if (!allRates) {
+    throw new NotFoundError(`no rates in interval`);
+  }
+  return allRates;
 }
-writeFiles();
-
-const rule = new schedule.RecurrenceRule();
-rule.dayOfWeek = [new schedule.Range(1, 5)];
-rule.hour = 17;
-rule.minute = 0;
-
-const dailyUpdate = schedule.scheduleJob(rule, function () {
-  console.log("db update run");
-  writeFiles();
-});
-
-export default { returnLastFile, directoryPath };
