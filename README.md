@@ -123,7 +123,7 @@ Functions from ecb-euro-exchange
 - fetchHistoric90d<br />
   This function fetches and transforms the data from the XML document containing the last 90 days' exchange rates.
 - fetchHistoric<br />
-  Just like the 90d function, except it uses all the available data, which dates back to 1999 at the moment. Useful for the first initiation of the exchange database(db).
+  Just like the 90d function, except it uses all the available data, which dates back to 1999 at the moment. Useful for the first initiation of the exchange database(db).<br />
   ###My functions
 - getLastDate<br />
   Returns the date of the last exchange rate object. Returns "1900-01-01" trasformed to date if empty.
