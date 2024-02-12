@@ -7,7 +7,6 @@ import {
   resetUserPassword,
 } from "../utils/passwordResetUtils";
 
-
 const SECRET_KEY = process.env.JWT_SECRET || "KEY";
 
 interface Request extends ExpressRequest {
@@ -16,11 +15,17 @@ interface Request extends ExpressRequest {
   };
 }
 
-export const register = async (req: Request, res: Response) => {};
+export const register = async (req: Request, res: Response) => {
+  res.status(409).json({ message: "Already registered, please log in!" });
+};
 
-export const login = async (req: Request, res: Response) => {};
+export const login = async (req: Request, res: Response) => {
+  res.send("login");
+};
 
-export const getProfile = async (req: Request, res: Response) => {};
+export const getProfile = async (req: Request, res: Response) => {
+  res.send("getProfile");
+};
 
 export const updateProfile = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -71,4 +76,3 @@ export const resetPassword = async (req: Request, res: Response) => {
 
   res.status(200).json({ message: "Password has been reset successfully." });
 };
-
