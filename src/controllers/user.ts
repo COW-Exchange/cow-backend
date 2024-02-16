@@ -6,6 +6,7 @@ import {
   setResetTokenForUser,
   resetUserPassword,
 } from "../utils/passwordResetUtils";
+import { transporter } from "../services/email";
 
 const SECRET_KEY = process.env.JWT_SECRET || "KEY";
 
@@ -16,7 +17,19 @@ interface Request extends ExpressRequest {
 }
 
 export const register = async (req: Request, res: Response) => {
-  res.status(409).json({ message: "Already registered, please log in!" });
+  const mailOptions = {
+    to: req.params.email,
+    subject: "Sending Email using Node.js",
+    text: "That was easy!",
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      res.status(200).send("E-mail sending");
+    }
+  });
 };
 
 export const login = async (req: Request, res: Response) => {
