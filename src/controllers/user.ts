@@ -6,7 +6,7 @@ import {
   setResetTokenForUser,
   resetUserPassword,
 } from "../utils/passwordResetUtils";
-
+import { transporter } from "../services/email";
 
 const SECRET_KEY = process.env.JWT_SECRET || "KEY";
 
@@ -16,11 +16,29 @@ interface Request extends ExpressRequest {
   };
 }
 
-export const register = async (req: Request, res: Response) => {};
+export const register = async (req: Request, res: Response) => {
+  const mailOptions = {
+    to: req.params.email,
+    subject: "Sending Email using Node.js",
+    text: "That was easy!",
+  };
 
-export const login = async (req: Request, res: Response) => {};
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      res.status(200).send("E-mail sending");
+    }
+  });
+};
 
-export const getProfile = async (req: Request, res: Response) => {};
+export const login = async (req: Request, res: Response) => {
+  res.send("login");
+};
+
+export const getProfile = async (req: Request, res: Response) => {
+  res.send("getProfile");
+};
 
 export const updateProfile = async (req: Request, res: Response) => {
   if (!req.user) {
@@ -71,4 +89,3 @@ export const resetPassword = async (req: Request, res: Response) => {
 
   res.status(200).json({ message: "Password has been reset successfully." });
 };
-
