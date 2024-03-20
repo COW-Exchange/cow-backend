@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
-import { convertDate } from "../utils/functions";
 
 interface UserMethods {
   isValidPassword(password: string): Promise<boolean>;
@@ -111,20 +110,26 @@ const CurrencyDefault = {
   ZAR: false,
 };
 
-interface User extends Document, UserMethods {
-  email: string;
+export interface UserDocument extends Document, UserMethods {
+  id: string;
+  email: { text: string; iv: Buffer };
   password: string;
   selectedCurrencies: Currencies;
   ownCurrencies: Currencies;
   baseCurrency: keyof Currencies;
-  timeFrame: { from: string; to: string };
+  timeFrame: number;
   resetToken?: string;
   resetTokenExpiration?: Date;
 }
 
 const UserSchema: Schema = new Schema({
-  email: {
+  id: {
     type: String,
+    required: true,
+    unique: true,
+  },
+  email: {
+    type: { text: String, iv: Buffer },
     required: true,
     unique: true,
   },
@@ -142,13 +147,8 @@ const UserSchema: Schema = new Schema({
   },
   baseCurrency: { type: String, default: "EUR" },
   timeFrame: {
-    type: { from: String, to: String },
-    default: {
-      from: convertDate(
-        new Date(new Date().getTime() - 60 * 60 * 24 * 7 * 1000)
-      ),
-      to: convertDate(new Date()),
-    },
+    type: Number,
+    default: 7,
   },
   resetToken: {
     type: String,
@@ -162,4 +162,4 @@ UserSchema.methods.isValidPassword = async function (password: string) {
   return await bcrypt.compare(password, this.password);
 };
 
-export default mongoose.model<User>("User", UserSchema);
+export default mongoose.model<UserDocument>("User", UserSchema);
