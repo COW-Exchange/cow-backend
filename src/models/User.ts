@@ -1,10 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
-interface UserMethods {
-  isValidPassword(password: string): Promise<boolean>;
-}
-
 interface Currencies {
   USD: boolean;
   JPY: boolean;
@@ -110,7 +106,7 @@ const CurrencyDefault = {
   ZAR: false,
 };
 
-export interface UserDocument extends Document, UserMethods {
+export interface UserDocument extends Document {
   id: string;
   email: { text: string; iv: Buffer };
   password: string;

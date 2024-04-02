@@ -1,10 +1,11 @@
-import { Request as ExpressRequest, Response, NextFunction } from "express";
-import User, { UserDocument } from "../models/User";
-import UserServices from "../services/user";
+import { Request as ExpressRequest, Response } from "express";
 import bcrypt from "bcryptjs";
-import { transporter } from "../services/email";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+
+import User, { UserDocument } from "../models/User";
+import UserServices from "../services/user";
+import { transporter } from "../services/email";
 
 const SECRET_KEY = process.env.JWT_SECRET || "KEY";
 const CRYPTO_KEY = process.env.CRYPTO_KEY || "KEY";
@@ -44,47 +45,25 @@ interface Request extends ExpressRequest {
   };
 }
 
-export const createUser = async (
-  req: ExpressRequest,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    let userData: null | UserDocument = null;
-    try {
-      const userData = (await User.find()).filter(async (user) => {
-        await bcrypt.compare(req.body.email, user.id);
-      })[0];
-    } catch {
-      () => (userData = null);
-    }
-    if (userData) {
-      res.sendStatus(409);
-    } else {
-      const userInformation = new User({
-        id: await hash(req.body.email),
-        email: encrypt(req.body.email),
-        password: await hash(req.body.password),
-      });
-      const newUser = await UserServices.createUserService(userInformation);
-      res.sendStatus(200);
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const register = async (req: Request, res: Response) => {
   const token = await generateToken(req.params.email, "");
   const mailOptions = {
     to: req.params.email,
     subject: "CowExchange registration",
-    html: `<p>Please use the following <a href="http://cowexchange.se/register?${encodeURIComponent(
+    html: `<p>Please use the following <a href="https://cowexchange.se/register?token=${encodeURIComponent(
       token
-    )}">link</a> to verify your email. The link expires in 1 hour.</p>`,
+    )}&email=${encodeURIComponent(
+      req.params.email
+    )}">link</a> to verify your email. The link expires in 1 hour.</p>
+    <p>Or copy the link address from below:</p>
+    <p>
+    https://cowexchange.se/register?token=${encodeURIComponent(
+      token
+    )}&email=${encodeURIComponent(req.params.email)}</p>
+    <p>Please disregard this e-mail if it was not requested by you.</p>`,
   };
 
-  transporter.sendMail(mailOptions, function (error, info) {
+  transporter.sendMail(mailOptions, function (error) {
     if (error) {
       console.log(error);
     } else {
@@ -92,21 +71,49 @@ export const register = async (req: Request, res: Response) => {
     }
   });
 };
-
 export const validateToken = async (req: Request, res: Response) => {
   const token = req.params.token;
+  const email = req.params.email;
   const secretKey = SECRET_KEY;
   try {
-    const decoded = jwt.verify(token, secretKey);
-    res.sendStatus(200);
+    const decoded: { id: string } = jwt.verify(token, secretKey) as {
+      id: string;
+    };
+    if (decoded.id === email) {
+      return res.sendStatus(200);
+    } else {
+      return res.sendStatus(401);
+    }
   } catch (error) {
-    console.error("Token verification failed:", error);
-    res.sendStatus(400);
+    return res.sendStatus(401);
   }
 };
+export const createUser = async (req: ExpressRequest, res: Response) => {
+  let userData = null;
+  try {
+    const users = await User.find().select("id password");
+    userData = users.find((user) =>
+      bcrypt.compareSync(req.body.email, user.id)
+    );
+  } catch {
+    () => {
+      userData = null;
+    };
+  }
+  if (!userData) {
+    const userInformation = new User({
+      id: await hash(req.body.email),
+      email: encrypt(req.body.email),
+      password: await hash(req.body.password),
+    });
+    const newUser = await UserServices.createUserService(userInformation);
+    res.json({ message: "Password saved successfully" });
+  }
+};
+
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = (await User.find()).find(async (user) => {
+  const user = (await User.find().select("id password")).find(async (user) => {
     await bcrypt.compare(email, user.id);
   });
   let isCorrectPassword = false;
@@ -114,7 +121,7 @@ export const login = async (req: Request, res: Response) => {
     isCorrectPassword = await bcrypt.compare(password, user.password);
   }
   if (isCorrectPassword) {
-    res.send("login");
+    res.sendStatus(200);
   } else {
     res.send("unauthorized");
   }

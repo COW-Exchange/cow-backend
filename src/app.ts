@@ -17,9 +17,9 @@ app.use("/exchange-rate", exchangeRateRoutes);
 app.use("/users", userRoutes);
 app.use("/chatgpt", chatGptRoutes);
 
-app.use(apiErrorHandler);
+// app.use(apiErrorHandler);
 
-getUpdate();
+// getUpdate();
 
 const rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [new schedule.Range(1, 5)];
