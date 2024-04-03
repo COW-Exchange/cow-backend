@@ -113,17 +113,19 @@ export const createUser = async (req: ExpressRequest, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const user = (await User.find().select("id password")).find(async (user) => {
-    await bcrypt.compare(email, user.id);
-  });
+  const user = (await User.find().select("id password")).find((user) =>
+    bcrypt.compareSync(req.body.email, user.id)
+  );
   let isCorrectPassword = false;
   if (user) {
     isCorrectPassword = await bcrypt.compare(password, user.password);
+  } else {
+    res.json({ message: "unauthorized" });
   }
   if (isCorrectPassword) {
-    res.sendStatus(200);
+    res.json({ message: "authorized" });
   } else {
-    res.send("unauthorized");
+    res.json({ message: "unauthorized" });
   }
 };
 
