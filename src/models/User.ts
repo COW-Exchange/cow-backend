@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema } from "mongoose";
-import bcrypt from "bcryptjs";
 
 interface Currencies {
   USD: boolean;
@@ -153,9 +152,5 @@ const UserSchema: Schema = new Schema({
     type: Date,
   },
 });
-
-UserSchema.methods.isValidPassword = async function (password: string) {
-  return await bcrypt.compare(password, this.password);
-};
 
 export default mongoose.model<UserDocument>("User", UserSchema);

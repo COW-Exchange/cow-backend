@@ -13,6 +13,6 @@ router.get("/profile", jwtAuth, userController.getProfile);
 
 router.put("/profile", jwtAuth, userController.updateProfile);
 
-router.get("/validate/:token/:email", userController.validateToken);
+router.get("/validate/:token/:email", userController.validateEmailToken);
 
 export default router;

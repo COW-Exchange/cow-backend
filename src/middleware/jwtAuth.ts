@@ -10,7 +10,16 @@ interface Request extends ExpressRequest {
 const SECRET_KEY = process.env.JWT_SECRET || "KEY";
 
 export default (req: Request, res: Response, next: NextFunction) => {
-  const token = req.header("Authentication");
+  function getCookieAuth(req: Request) {
+    const cookie = req.headers.cookie;
+    const cookieArray = cookie?.split("; ");
+    const authElement = cookieArray?.find((item) => {
+      return item.includes("AuthToken=");
+    });
+    const token = authElement?.split("AuthToken=")[1];
+    return token;
+  }
+  const token = req.header("Authentication") || getCookieAuth(req);
   if (!token) return res.status(401).send("Access Denied");
 
   try {

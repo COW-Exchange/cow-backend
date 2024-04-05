@@ -71,7 +71,7 @@ export const register = async (req: Request, res: Response) => {
     }
   });
 };
-export const validateToken = async (req: Request, res: Response) => {
+export const validateEmailToken = async (req: Request, res: Response) => {
   const token = req.params.token;
   const email = req.params.email;
   const secretKey = SECRET_KEY;
@@ -114,18 +114,28 @@ export const createUser = async (req: ExpressRequest, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = (await User.find().select("id password")).find((user) =>
-    bcrypt.compareSync(req.body.email, user.id)
+    bcrypt.compareSync(email, user.id)
   );
   let isCorrectPassword = false;
   if (user) {
     isCorrectPassword = await bcrypt.compare(password, user.password);
+    if (isCorrectPassword) {
+      const token = await generateToken(user._id, user.password);
+      res
+        .cookie("AuthToken", token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "none",
+          domain: "http://localhost:3000",
+          path: "/profile",
+          maxAge: 3600000,
+        })
+        .json({ message: "authorized" });
+    } else {
+      res.sendStatus(400).json({ error: "unauthorized" });
+    }
   } else {
-    res.json({ message: "unauthorized" });
-  }
-  if (isCorrectPassword) {
-    res.json({ message: "authorized" });
-  } else {
-    res.json({ message: "unauthorized" });
+    res.sendStatus(400).json({ error: "unauthorized" });
   }
 };
 

@@ -1,5 +1,9 @@
 import express from "express";
 import cors from "cors";
+const corsOptions = {
+  origin: ["http://localhost:3000", "http://127.0.0.1"],
+  credentials: true,
+};
 
 import apiErrorHandler from "./middleware/apiErrorHandler";
 import exchangeRateRoutes from "./routes/exchangeRate";
@@ -11,7 +15,7 @@ import schedule from "node-schedule";
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use("/exchange-rate", exchangeRateRoutes);
 app.use("/users", userRoutes);
