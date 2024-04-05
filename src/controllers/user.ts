@@ -125,9 +125,7 @@ export const login = async (req: Request, res: Response) => {
         .cookie("AuthToken", token, {
           httpOnly: true,
           secure: false,
-          sameSite: "none",
-          domain: "http://localhost:3000",
-          path: "/profile",
+          sameSite: "lax",
           maxAge: 3600000,
         })
         .json({ message: "authorized" });
