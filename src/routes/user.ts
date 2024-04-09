@@ -5,7 +5,7 @@ import jwtAuth from "../middleware/jwtAuth";
 const router = Router();
 
 router.post("/register/:email", userController.register);
-router.post("/register/", jwtAuth, userController.createUser);
+// router.post("/register/", jwtAuth, userController.createUser);
 
 router.post("/login", userController.login);
 

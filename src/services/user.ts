@@ -1,14 +1,16 @@
 import { NotFoundError } from "../helpers/apiError";
 import User, { UserDocument } from "../models/User";
 
-const createUserService = async (user: UserDocument): Promise<UserDocument> => {
+const createUserService = async (user: UserDocument) => {
   return await user.save();
 };
 
-const findUserByEmail = async (userEmail: string): Promise<UserDocument> => {
-  const foundUser = await User.findOne({ email: userEmail });
+const findUserById = async (id: string): Promise<UserDocument> => {
+  const foundUser = await User.findOne({ id: id }).select(
+    "id selectedCurrencies ownCurrencies baseCurrency timeFrame"
+  );
   if (!foundUser) {
-    throw new NotFoundError(`User ${userEmail} not found`);
+    throw new NotFoundError(`User ${id} not found`);
   }
   return foundUser;
 };
@@ -27,4 +29,8 @@ const updateUser = async (
   return foundUser;
 };
 
-export default { createUserService, findUserByEmail, updateUser };
+export default {
+  createUserService,
+  findUserById,
+  updateUser,
+};

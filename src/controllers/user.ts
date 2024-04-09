@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-import User, { UserDocument } from "../models/User";
+import User from "../models/User";
 import UserServices from "../services/user";
 import { transporter } from "../services/email";
 
@@ -120,7 +120,7 @@ export const login = async (req: Request, res: Response) => {
   if (user) {
     isCorrectPassword = await bcrypt.compare(password, user.password);
     if (isCorrectPassword) {
-      const token = await generateToken(user._id, user.password);
+      const token = await generateToken(user.id, user.password);
       res
         .cookie("AuthToken", token, {
           httpOnly: true,
@@ -138,7 +138,12 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const getProfile = async (req: Request, res: Response) => {
-  res.send("getProfile");
+  let user = null;
+  if (req.user) {
+    user = await UserServices.findUserById(req.user.id);
+  }
+
+  res.json({ user });
 };
 
 export const updateProfile = async (req: Request, res: Response) => {
