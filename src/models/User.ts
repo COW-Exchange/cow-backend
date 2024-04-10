@@ -104,8 +104,7 @@ const CurrencyDefault = {
   THB: false,
   ZAR: false,
 };
-
-export interface UserDocument extends Document {
+export interface UserInterface {
   id: string;
   email: { text: string; iv: Buffer };
   password: string;
@@ -116,6 +115,7 @@ export interface UserDocument extends Document {
   resetToken?: string;
   resetTokenExpiration?: Date;
 }
+export type UserDocument = Document & UserInterface;
 
 const UserSchema: Schema = new Schema({
   id: {

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
-import User from "../models/User";
+import User, { UserDocument } from "../models/User";
 import UserServices from "../services/user";
 import { transporter } from "../services/email";
 
@@ -158,7 +158,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   if (email) updates.email = email;
 
   if (password) {
-    updates.password = await bcrypt.hash(password, 12);
+    updates.password = await hash(password);
   }
 
   const user = await User.findByIdAndUpdate(userId, updates, {
@@ -170,4 +170,34 @@ export const updateProfile = async (req: Request, res: Response) => {
   }
 
   res.json("user");
+};
+export const updateSettings = async (req: Request, res: Response) => {
+  const user: Partial<UserDocument> = req.body.user;
+
+  let updates: Partial<UserDocument> = {};
+  if (user.selectedCurrencies) {
+    updates.selectedCurrencies = user.selectedCurrencies;
+  }
+  if (user.ownCurrencies) {
+    updates.ownCurrencies = user.ownCurrencies;
+  }
+  if (user.baseCurrency) {
+    updates.baseCurrency = user.baseCurrency;
+  }
+  if (user.timeFrame) {
+    updates.timeFrame = user.timeFrame;
+  }
+  try {
+    const userUpdate = await User.findByIdAndUpdate(user._id, updates, {
+      new: true,
+    }).select("-password");
+  } catch (e) {
+    console.log(e);
+  }
+
+  if (!user) {
+    return res.sendStatus(404);
+  }
+
+  res.json({ message: "settings saved" });
 };
