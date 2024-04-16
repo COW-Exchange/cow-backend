@@ -137,6 +137,17 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+export const logout = async (req: Request, res: Response) => {
+  res
+    .cookie("AuthToken", "", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 0,
+    })
+    .json({ message: "Logged out" });
+};
+
 export const getProfile = async (req: Request, res: Response) => {
   let user = null;
   if (req.user) {
@@ -200,4 +211,8 @@ export const updateSettings = async (req: Request, res: Response) => {
   }
 
   res.json({ message: "settings saved" });
+};
+
+export const checkSession = async (req: Request, res: Response) => {
+  res.json({ message: "logged in" });
 };

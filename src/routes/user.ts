@@ -8,6 +8,8 @@ router.post("/register/:email", userController.register);
 router.post("/register/", jwtAuth, userController.createUser);
 
 router.post("/login", userController.login);
+router.post("/logout", userController.logout);
+router.get("/check", jwtAuth, userController.checkSession);
 
 router.get("/profile", jwtAuth, userController.getProfile);
 
