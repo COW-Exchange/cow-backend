@@ -212,7 +212,3 @@ export const updateSettings = async (req: Request, res: Response) => {
 
   res.json({ message: "settings saved" });
 };
-
-export const checkSession = async (req: Request, res: Response) => {
-  res.json({ message: "logged in" });
-};
