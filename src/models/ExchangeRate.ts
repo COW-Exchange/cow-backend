@@ -1,39 +1,78 @@
 import mongoose, { Document } from "mongoose";
 
-export type ExchangeRates = {
-  USD: number;
-  JPY: number;
-  BGN: number;
-  CZK: number;
-  DKK: number;
-  GBP: number;
-  HUF: number;
-  PLN: number;
-  RON: number;
-  SEK: number;
-  CHF: number;
-  ISK: number;
-  NOK: number;
-  HRK: number;
-  RUB: number;
-  TRY: number;
-  AUD: number;
-  BRL: number;
-  CAD: number;
-  CNY: number;
-  HKD: number;
-  IDR: number;
-  ILS: number;
-  INR: number;
-  KRW: number;
-  MXN: number;
-  MYR: number;
-  NZD: number;
-  PHP: number;
-  SGD: number;
-  THB: number;
-  ZAR: number;
-};
+export const CurrencyList = [
+  "USD",
+  "JPY",
+  "BGN",
+  "CZK",
+  "DKK",
+  "GBP",
+  "HUF",
+  "PLN",
+  "RON",
+  "SEK",
+  "CHF",
+  "ISK",
+  "NOK",
+  "HRK",
+  "RUB",
+  "TRY",
+  "AUD",
+  "BRL",
+  "CAD",
+  "CNY",
+  "HKD",
+  "IDR",
+  "ILS",
+  "INR",
+  "KRW",
+  "MXN",
+  "MYR",
+  "NZD",
+  "PHP",
+  "SGD",
+  "THB",
+  "ZAR",
+];
+let exchangeRates: { [key: string]: number } = {};
+CurrencyList.forEach((currency) => {
+  exchangeRates[currency] = 0;
+});
+export type ExchangeRates = typeof exchangeRates;
+// export interface ExchangeRates {
+//   USD: number;
+//   JPY: number;
+//   BGN: number;
+//   CZK: number;
+//   DKK: number;
+//   GBP: number;
+//   HUF: number;
+//   PLN: number;
+//   RON: number;
+//   SEK: number;
+//   CHF: number;
+//   ISK: number;
+//   NOK: number;
+//   HRK: number;
+//   RUB: number;
+//   TRY: number;
+//   AUD: number;
+//   BRL: number;
+//   CAD: number;
+//   CNY: number;
+//   HKD: number;
+//   IDR: number;
+//   ILS: number;
+//   INR: number;
+//   KRW: number;
+//   MXN: number;
+//   MYR: number;
+//   NZD: number;
+//   PHP: number;
+//   SGD: number;
+//   THB: number;
+//   ZAR: number;
+// }
 
 export type ExchangeRateDaily = {
   date: Date;
