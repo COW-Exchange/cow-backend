@@ -19,9 +19,9 @@ function encrypt(text: string) {
   return { text: encryptedText, iv: iv };
 }
 
-function decipher(text: string, iv: Buffer) {
-  const decipher = crypto.createDecipheriv(ALGORITHM, CRYPTO_KEY, iv);
-  let decrypted = decipher.update(text, "hex", "utf8");
+export function decipher(email: { text: string; iv: Buffer }) {
+  const decipher = crypto.createDecipheriv(ALGORITHM, CRYPTO_KEY, email.iv);
+  let decrypted = decipher.update(email.text, "hex", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;
 }
@@ -117,23 +117,27 @@ export const login = async (req: Request, res: Response) => {
     bcrypt.compareSync(email, user.id)
   );
   let isCorrectPassword = false;
-  if (user) {
-    isCorrectPassword = await bcrypt.compare(password, user.password);
-    if (isCorrectPassword) {
-      const token = await generateToken(user.id, user.password);
-      res
-        .cookie("AuthToken", token, {
-          httpOnly: true,
-          secure: false,
-          sameSite: "lax",
-          maxAge: 3600000,
-        })
-        .json({ message: "authorized" });
+  try {
+    if (user) {
+      isCorrectPassword = await bcrypt.compare(password, user.password);
+      if (isCorrectPassword) {
+        const token = await generateToken(user.id, user.password);
+        res
+          .cookie("AuthToken", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 3600000,
+          })
+          .json({ message: "Welcome!" });
+      } else {
+        res.status(400).json({ error: "Wrong e-mail or password" });
+      }
     } else {
-      res.sendStatus(400).json({ error: "unauthorized" });
+      res.status(400).json({ error: "Wrong e-mail or password" });
     }
-  } else {
-    res.sendStatus(400).json({ error: "unauthorized" });
+  } catch (e) {
+    console.log(e);
   }
 };
 
@@ -166,7 +170,9 @@ export const updateProfile = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   let updates: any = {};
-  if (email) updates.email = email;
+  if (email) {
+    updates.email = encrypt(email);
+  }
 
   if (password) {
     updates.password = await hash(password);

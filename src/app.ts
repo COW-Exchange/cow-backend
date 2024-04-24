@@ -11,6 +11,7 @@ import userRoutes from "./routes/user";
 import chatGptRoutes from "./routes/chatGptRoutes";
 import { getUpdate } from "./services/exchangeRate";
 import schedule from "node-schedule";
+import { sendNewsletter } from "./services/email";
 
 const app = express();
 
@@ -33,6 +34,6 @@ rule.minute = 0;
 const dailyUpdate = schedule.scheduleJob(rule, function () {
   console.log("db update run");
   getUpdate();
+  sendNewsletter();
 });
-
 export default app;

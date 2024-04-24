@@ -18,6 +18,6 @@ export const getRates = async (req: Request, res: Response) => {
 };
 
 export const getCurrencies = async (req: Request, res: Response) => {
-  let currencies = [...CurrencyList, "EUR"];
+  let currencies = [...CurrencyList, "EUR"].sort();
   res.status(200).json({ currencies: currencies });
 };
