@@ -45,12 +45,43 @@ interface Request extends ExpressRequest {
   };
 }
 
+type CookieOptions = {
+  maxAge: number;
+  expires: Date;
+  path: string;
+  domain: string;
+  sameSite: "strict" | "lax" | "none" | true;
+  secure: boolean;
+  httpOnly: boolean;
+  signed: boolean;
+  overwrite: boolean;
+};
+
+const cookieOptions: Partial<CookieOptions> =
+  process.env.NODE_ENV === "development"
+    ? {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        domain: "localhost",
+        maxAge: 3600000,
+        path: "/",
+      }
+    : {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        // domain: ".railway.app",
+        maxAge: 3600000,
+        path: "/",
+      };
+
 export const register = async (req: Request, res: Response) => {
   const token = await generateToken(req.params.email, "");
   const mailOptions = {
     to: req.params.email,
     subject: "CowExchange registration",
-    html: `<p>Link for testing: <a href="https://cow-frontend-git-main-vitbyros-projects.vercel.app/register?token=${encodeURIComponent(
+    html: `<p>Link for testing: <a href="https://cow-frontend-production.up.railway.app/register?token=${encodeURIComponent(
       token
     )}&email=${encodeURIComponent(req.params.email)}">link</a></p>
     <p>Please use the following <a href="https://cowexchange.se/register?token=${encodeURIComponent(
@@ -120,19 +151,14 @@ export const login = async (req: Request, res: Response) => {
     bcrypt.compareSync(email, user.id)
   );
   let isCorrectPassword = false;
+
   try {
     if (user) {
       isCorrectPassword = await bcrypt.compare(password, user.password);
       if (isCorrectPassword) {
         const token = await generateToken(user.id, user.password);
         res
-          .cookie("AuthToken", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            domain: ".railway.app",
-            maxAge: 3600000,
-          })
+          .cookie("AuthToken", token, cookieOptions)
           .json({ message: "Welcome!" });
       } else {
         res.status(400).json({ error: "Wrong e-mail or password" });
@@ -146,15 +172,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const logout = async (req: Request, res: Response) => {
-  res
-    .cookie("AuthToken", "", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      domain: ".railway.app",
-      maxAge: 0,
-    })
-    .json({ message: "Logged out" });
+  res.clearCookie("AuthToken", cookieOptions).json({ message: "Logged out" });
 };
 
 export const getProfile = async (req: Request, res: Response) => {
