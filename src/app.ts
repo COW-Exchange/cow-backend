@@ -20,7 +20,14 @@ if (NODE_ENV === "development") {
   };
   app.use(cors(corsOptions));
 } else {
-  app.use(cors());
+  const corsOptions = {
+    origin: [
+      "https://cow-frontend-git-main-vitbyros-projects.vercel.app",
+      "https://cowexchange.se",
+    ],
+    credentials: true,
+  };
+  app.use(cors(corsOptions));
 }
 
 app.use("/exchange-rate", exchangeRateRoutes);
