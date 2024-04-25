@@ -129,7 +129,7 @@ export const login = async (req: Request, res: Response) => {
           .cookie("AuthToken", token, {
             httpOnly: true,
             secure: true,
-            sameSite: "lax",
+            sameSite: "none",
             maxAge: 3600000,
           })
           .json({ message: "Welcome!" });
@@ -149,7 +149,7 @@ export const logout = async (req: Request, res: Response) => {
     .cookie("AuthToken", "", {
       httpOnly: true,
       secure: true,
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 0,
     })
     .json({ message: "Logged out" });
