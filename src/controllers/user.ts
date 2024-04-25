@@ -129,7 +129,7 @@ export const login = async (req: Request, res: Response) => {
           .cookie("AuthToken", token, {
             httpOnly: true,
             secure: true,
-            sameSite: "lax",
+            sameSite: "none",
             domain: ".railway.app",
             maxAge: 3600000,
           })
@@ -150,7 +150,7 @@ export const logout = async (req: Request, res: Response) => {
     .cookie("AuthToken", "", {
       httpOnly: true,
       secure: true,
-      sameSite: "lax",
+      sameSite: "none",
       domain: ".railway.app",
       maxAge: 0,
     })
