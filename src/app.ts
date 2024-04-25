@@ -1,9 +1,5 @@
 import express from "express";
 import cors from "cors";
-const corsOptions = {
-  origin: ["http://localhost:3000", "http://127.0.0.1"],
-  credentials: true,
-};
 
 import apiErrorHandler from "./middleware/apiErrorHandler";
 import exchangeRateRoutes from "./routes/exchangeRate";
@@ -16,7 +12,16 @@ import { sendNewsletter } from "./services/email";
 const app = express();
 
 app.use(express.json());
-app.use(cors(corsOptions));
+const NODE_ENV = process.env.NODE_ENV || "development";
+if (NODE_ENV === "development") {
+  const corsOptions = {
+    origin: ["http://localhost:3000", "http://127.0.0.1"],
+    credentials: true,
+  };
+  app.use(cors(corsOptions));
+} else {
+  app.use(cors());
+}
 
 app.use("/exchange-rate", exchangeRateRoutes);
 app.use("/users", userRoutes);
@@ -34,6 +39,6 @@ rule.minute = 0;
 const dailyUpdate = schedule.scheduleJob(rule, function () {
   console.log("db update run");
   getUpdate();
-  sendNewsletter();
+  // sendNewsletter();
 });
 export default app;
