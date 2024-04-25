@@ -50,7 +50,10 @@ export const register = async (req: Request, res: Response) => {
   const mailOptions = {
     to: req.params.email,
     subject: "CowExchange registration",
-    html: `<p>Please use the following <a href="https://cowexchange.se/register?token=${encodeURIComponent(
+    html: `<p>Link for testing: <a href="https://cow-frontend-git-main-vitbyros-projects.vercel.app/register?token=${encodeURIComponent(
+      token
+    )}&email=${encodeURIComponent(req.params.email)}">link</a></p>
+    <p>Please use the following <a href="https://cowexchange.se/register?token=${encodeURIComponent(
       token
     )}&email=${encodeURIComponent(
       req.params.email
