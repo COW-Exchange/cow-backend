@@ -25,6 +25,7 @@ if (NODE_ENV === "development") {
       "https://cow-frontend-git-main-vitbyros-projects.vercel.app",
       "https://cowexchange.se",
       "https://cow-frontend.vercel.app",
+      "https://cow-frontend-production.up.railway.app",
     ],
     credentials: true,
   };
