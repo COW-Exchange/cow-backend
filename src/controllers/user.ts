@@ -71,9 +71,9 @@ const cookieOptions: Partial<CookieOptions> =
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        // domain: ".railway.app",
+        domain: ".railway.app",
         maxAge: 3600000,
-        path: "/",
+        // path: "/",
       };
 
 export const register = async (req: Request, res: Response) => {
