@@ -63,17 +63,14 @@ const cookieOptions: Partial<CookieOptions> =
         httpOnly: true,
         secure: false,
         sameSite: "lax",
-        domain: "localhost",
         maxAge: 3600000,
-        path: "/",
       }
     : {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain: ".railway.app",
+        // domain: "",
         maxAge: 3600000,
-        // path: "/",
       };
 
 export const register = async (req: Request, res: Response) => {
@@ -158,7 +155,7 @@ export const login = async (req: Request, res: Response) => {
       if (isCorrectPassword) {
         const token = await generateToken(user.id, user.password);
         res
-          .cookie("AuthToken", token, cookieOptions)
+          .cookie("AuthToken", token, { ...cookieOptions })
           .json({ message: "Welcome!" });
       } else {
         res.status(400).json({ error: "Wrong e-mail or password" });
