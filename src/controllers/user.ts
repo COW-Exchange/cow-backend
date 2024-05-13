@@ -69,7 +69,7 @@ const cookieOptions: Partial<CookieOptions> =
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        // domain: "",
+        domain: "onrender.com",
         maxAge: 3600000,
       };
 
