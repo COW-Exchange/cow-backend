@@ -68,8 +68,9 @@ const cookieOptions: Partial<CookieOptions> =
     : {
         httpOnly: true,
         secure: true,
-        sameSite: "none",
+        sameSite: "lax",
         domain: "onrender.com",
+        path: "/users",
         maxAge: 3600000,
       };
 
