@@ -70,7 +70,7 @@ const cookieOptions: Partial<CookieOptions> =
         secure: true,
         sameSite: "none",
         // domain: "cow-frontend.vercel.app",
-        // path: "/",
+        path: "/",
         maxAge: 3600000,
       };
 
