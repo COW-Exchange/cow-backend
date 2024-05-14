@@ -69,8 +69,8 @@ const cookieOptions: Partial<CookieOptions> =
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain: ".onrender.com",
-        path: "/users",
+        domain: "cow-frontend.vercel.app",
+        path: "/",
         maxAge: 3600000,
       };
 
