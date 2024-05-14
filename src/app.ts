@@ -21,12 +21,7 @@ if (NODE_ENV === "development") {
   app.use(cors(corsOptions));
 } else {
   const corsOptions = {
-    origin: [
-      "https://cow-frontend-git-main-vitbyros-projects.vercel.app",
-      "https://cowexchange.se",
-      "https://cow-frontend.vercel.app",
-      "https://cow-frontend-production.up.railway.app",
-    ],
+    origin: ["https://cowexchange.se", "https://cow-frontend.vercel.app"],
     credentials: true,
   };
   app.use(cors(corsOptions));
