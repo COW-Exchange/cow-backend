@@ -23,6 +23,7 @@ if (NODE_ENV === "development") {
   const corsOptions = {
     origin: ["https://cowexchange.se", "https://cow-frontend.vercel.app"],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
   };
   app.use(cors(corsOptions));
 }
@@ -33,7 +34,7 @@ app.use("/chatgpt", chatGptRoutes);
 
 // app.use(apiErrorHandler);
 
-// getUpdate();
+getUpdate();
 
 const rule = new schedule.RecurrenceRule();
 rule.dayOfWeek = [new schedule.Range(1, 5)];
