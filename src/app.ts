@@ -13,15 +13,14 @@ const app = express();
 
 app.use(express.json());
 const NODE_ENV = process.env.NODE_ENV || "development";
-console.log("environment:", NODE_ENV);
+let corsOptions = {};
 if (NODE_ENV === "development") {
-  const corsOptions = {
+  corsOptions = {
     origin: ["http://localhost:3000", "http://127.0.0.1"],
     credentials: true,
   };
-  app.use(cors(corsOptions));
 } else {
-  const corsOptions = {
+  corsOptions = {
     origin: [
       "https://cowexchange.se",
       "https://www.cowexchange.se/",
@@ -30,8 +29,9 @@ if (NODE_ENV === "development") {
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
   };
-  app.use(cors(corsOptions));
 }
+console.log("cors options:", corsOptions);
+app.use(cors(corsOptions));
 
 app.use("/exchange-rate", exchangeRateRoutes);
 app.use("/users", userRoutes);
