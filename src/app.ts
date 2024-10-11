@@ -21,11 +21,20 @@ if (NODE_ENV === "development") {
   };
 } else {
   corsOptions = {
-    origin: [
-      "https://cowexchange.se",
-      "https://www.cowexchange.se/",
-      "https://cow-frontend.vercel.app",
-    ],
+    origin: (origin: string, callback: Function) => {
+      if (
+        [
+          "https://cowexchange.se",
+          "https://www.cowexchange.se",
+          "https://cow-frontend.vercel.app",
+        ].indexOf(origin) !== -1 ||
+        !origin
+      ) {
+        callback(null, true); // Allow access
+      } else {
+        callback(new Error("Not allowed by CORS")); // Block access
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"],
   };
