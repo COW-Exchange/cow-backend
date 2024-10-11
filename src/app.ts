@@ -13,6 +13,7 @@ const app = express();
 
 app.use(express.json());
 const NODE_ENV = process.env.NODE_ENV || "development";
+console.log("environment:", NODE_ENV);
 if (NODE_ENV === "development") {
   const corsOptions = {
     origin: ["http://localhost:3000", "http://127.0.0.1"],
