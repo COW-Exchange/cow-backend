@@ -68,9 +68,9 @@ const cookieOptions: Partial<CookieOptions> =
     : {
         httpOnly: true,
         secure: true,
-        sameSite: "none",
-        // domain: "cow-frontend.vercel.app",
-        path: "/",
+        sameSite: "strict",
+        domain: "cowexchange.se",
+        // path: "/",
         maxAge: 3600000,
       };
 
