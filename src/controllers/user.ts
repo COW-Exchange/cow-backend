@@ -68,8 +68,8 @@ const cookieOptions: Partial<CookieOptions> =
     : {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
-        domain: "cowexchange.se",
+        sameSite: "lax",
+        domain: ".cowexchange.se",
         // path: "/",
         maxAge: 3600000,
       };
